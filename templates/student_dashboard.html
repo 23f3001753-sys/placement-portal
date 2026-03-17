@@ -1,0 +1,294 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if view == 'profile' %}My Profile{% else %}Student Dashboard{% endif %}
+    — Placement Portal
+{% endblock %}
+
+{% block content %}
+
+{% if view == 'profile' %}
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     PROFILE EDIT VIEW
+     Accessed via /student/profile
+══════════════════════════════════════════════════════════════════════════════ -->
+
+<div class="row justify-content-center mt-3">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-success text-white py-3">
+                <h4 class="mb-0">
+                    <i class="bi bi-person-gear me-2"></i>Update Profile
+                </h4>
+                <small class="opacity-75">Update your details and upload your resume</small>
+            </div>
+
+            <div class="card-body p-4">
+                <form method="POST"
+                      action="{{ url_for('student_profile') }}"
+                      enctype="multipart/form-data"
+                      novalidate>
+
+                    <div class="row g-3">
+
+                        <!-- Full Name -->
+                        <div class="col-12">
+                            <label for="name" class="form-label fw-semibold">
+                                <i class="bi bi-person me-1"></i>Full Name
+                            </label>
+                            <input type="text" class="form-control"
+                                   id="name" name="name"
+                                   value="{{ current_user.name }}" required />
+                        </div>
+
+                        <!-- Course -->
+                        <div class="col-md-6">
+                            <label for="course" class="form-label fw-semibold">
+                                <i class="bi bi-book me-1"></i>Course / Branch
+                            </label>
+                            <input type="text" class="form-control"
+                                   id="course" name="course"
+                                   value="{{ student.course or '' }}"
+                                   placeholder="e.g. B.Tech CSE" />
+                        </div>
+
+                        <!-- CGPA -->
+                        <div class="col-md-6">
+                            <label for="cgpa" class="form-label fw-semibold">
+                                <i class="bi bi-bar-chart me-1"></i>CGPA (0 – 10)
+                            </label>
+                            <input type="number" class="form-control"
+                                   id="cgpa" name="cgpa"
+                                   value="{{ student.cgpa or '' }}"
+                                   step="0.01" min="0" max="10" />
+                        </div>
+
+                        <!-- Contact -->
+                        <div class="col-12">
+                            <label for="contact_number" class="form-label fw-semibold">
+                                <i class="bi bi-telephone me-1"></i>Contact Number
+                            </label>
+                            <input type="tel" class="form-control"
+                                   id="contact_number" name="contact_number"
+                                   value="{{ student.contact_number or '' }}"
+                                   maxlength="15" />
+                        </div>
+
+                        <!-- Resume Upload -->
+                        <div class="col-12">
+                            <label for="resume" class="form-label fw-semibold">
+                                <i class="bi bi-file-earmark-arrow-up me-1"></i>
+                                Resume
+                                <small class="text-muted fw-normal">(PDF / DOC / DOCX, max 5 MB)</small>
+                            </label>
+
+                            {% if student.resume_filename %}
+                                <div class="alert alert-success py-2 mb-2 small">
+                                    <i class="bi bi-check-circle me-1"></i>
+                                    Current file: <strong>{{ student.resume_filename }}</strong>
+                                    — Upload a new file to replace it.
+                                </div>
+                            {% endif %}
+
+                            <input type="file" class="form-control"
+                                   id="resume" name="resume"
+                                   accept=".pdf,.doc,.docx" />
+                        </div>
+
+                    </div><!-- /row -->
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-save me-2"></i>Save Changes
+                        </button>
+                        <a href="{{ url_for('student_dashboard') }}" class="btn btn-outline-secondary">
+                            Cancel
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% else %}
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     MAIN DASHBOARD VIEW
+     Accessed via /student/dashboard
+══════════════════════════════════════════════════════════════════════════════ -->
+
+<!-- Page Heading -->
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h2 class="mb-0">
+            <i class="bi bi-house me-2 text-primary"></i>Welcome, {{ current_user.name }}!
+        </h2>
+        <small class="text-muted">Browse available placement drives and track your applications</small>
+    </div>
+    <a href="{{ url_for('student_profile') }}" class="btn btn-outline-success">
+        <i class="bi bi-person-gear me-2"></i>Edit Profile
+    </a>
+</div>
+
+
+<!-- ─── Profile Summary Strip ───────────────────────────────────────────────── -->
+<div class="card border-0 shadow-sm mb-4 bg-white">
+    <div class="card-body py-3">
+        <div class="row align-items-center g-2 text-center text-md-start">
+            <div class="col-6 col-md-3">
+                <div class="text-muted small">Course</div>
+                <div class="fw-semibold">{{ student.course or '—' }}</div>
+            </div>
+            <div class="col-6 col-md-2">
+                <div class="text-muted small">CGPA</div>
+                <div class="fw-semibold">{{ student.cgpa or '—' }}</div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="text-muted small">Contact</div>
+                <div class="fw-semibold">{{ student.contact_number or '—' }}</div>
+            </div>
+            <div class="col-6 col-md-4 text-md-end">
+                {% if student.resume_filename %}
+                    <span class="badge bg-success px-3 py-2">
+                        <i class="bi bi-file-earmark-pdf me-1"></i>Resume Uploaded
+                    </span>
+                {% else %}
+                    <a href="{{ url_for('student_profile') }}" class="badge bg-warning text-dark px-3 py-2 text-decoration-none">
+                        <i class="bi bi-upload me-1"></i>Upload Resume
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ─── Available Drives ──────────────────────────────────────────────────────── -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">
+            <i class="bi bi-briefcase me-2 text-primary"></i>Available Placement Drives
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        {% if available_drives %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Company</th>
+                        <th>Job Title</th>
+                        <th>Description</th>
+                        <th>Eligibility</th>
+                        <th>Deadline</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for drive in available_drives %}
+                    <tr class="{{ 'table-success' if drive.id in applied_drive_ids else '' }}">
+                        <td>{{ loop.index }}</td>
+                        <td>
+                            <strong>{{ drive.company.company_name }}</strong>
+                        </td>
+                        <td>{{ drive.job_title }}</td>
+                        <td>
+                            <small class="text-muted">
+                                {{ drive.job_description[:80] if drive.job_description else '—' }}
+                                {% if drive.job_description and drive.job_description|length > 80 %}…{% endif %}
+                            </small>
+                        </td>
+                        <td>{{ drive.eligibility or '—' }}</td>
+                        <td>
+                            {% if drive.deadline %}
+                                {{ drive.deadline.strftime('%d %b %Y') }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if drive.id in applied_drive_ids %}
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle me-1"></i>Applied
+                                </span>
+                            {% else %}
+                                <!-- Apply form — uses POST to prevent CSRF via link -->
+                                <form method="POST"
+                                      action="{{ url_for('apply_drive', drive_id=drive.id) }}"
+                                      class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-primary"
+                                            onclick="return confirm('Apply to {{ drive.job_title }}?')">
+                                        <i class="bi bi-send me-1"></i>Apply
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-search display-4 mb-3 d-block"></i>
+                <p class="mb-0">No placement drives available right now. Check back soon!</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+
+<!-- ─── Recent Applications ───────────────────────────────────────────────────── -->
+{% if recent_applications %}
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="bi bi-clock-history me-2 text-secondary"></i>Recent Applications
+        </h5>
+        <a href="{{ url_for('student_applications') }}" class="btn btn-sm btn-outline-secondary">
+            View All
+        </a>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Company</th>
+                        <th>Job Title</th>
+                        <th>Applied On</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in recent_applications %}
+                    <tr>
+                        <td><strong>{{ app.drive.company.company_name }}</strong></td>
+                        <td>{{ app.drive.job_title }}</td>
+                        <td>{{ app.application_date.strftime('%d %b %Y') }}</td>
+                        <td>
+                            {% if app.status == 'Selected' %}
+                                <span class="badge bg-success">{{ app.status }}</span>
+                            {% elif app.status == 'Shortlisted' %}
+                                <span class="badge bg-info text-dark">{{ app.status }}</span>
+                            {% elif app.status == 'Rejected' %}
+                                <span class="badge bg-danger">{{ app.status }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ app.status }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endif %}{# end of view == 'dashboard' block #}
+
+{% endblock %}

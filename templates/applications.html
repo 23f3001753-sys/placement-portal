@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if view == 'company' %}
+        Applicants — {{ drive.job_title }}
+    {% else %}
+        My Applications
+    {% endif %}
+    — Placement Portal
+{% endblock %}
+
+{% block content %}
+
+{% if view == 'company' %}
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     COMPANY VIEW: See applicants for a specific drive, update status
+══════════════════════════════════════════════════════════════════════════════ -->
+
+<!-- Page Heading -->
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h2 class="mb-0">
+            <i class="bi bi-people me-2 text-primary"></i>Applicants
+        </h2>
+        <p class="text-muted mb-0">
+            Drive: <strong>{{ drive.job_title }}</strong>
+            &nbsp;|&nbsp;
+            Status:
+            {% if drive.status == 'Approved' %}
+                <span class="badge bg-success">{{ drive.status }}</span>
+            {% elif drive.status == 'Closed' %}
+                <span class="badge bg-secondary">{{ drive.status }}</span>
+            {% else %}
+                <span class="badge bg-warning text-dark">{{ drive.status }}</span>
+            {% endif %}
+        </p>
+    </div>
+    <a href="{{ url_for('company_dashboard') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+    </a>
+</div>
+
+<!-- Drive Info Card -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-8">
+                <h5>{{ drive.job_title }}</h5>
+                <p class="text-muted mb-1">{{ drive.job_description or 'No description provided.' }}</p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <div class="text-muted small">Eligibility</div>
+                <div>{{ drive.eligibility or '—' }}</div>
+                <div class="text-muted small mt-2">Deadline</div>
+                <div>{{ drive.deadline.strftime('%d %b %Y') if drive.deadline else '—' }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Applicants Table -->
+{% if applications %}
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">
+            <i class="bi bi-list-check me-2"></i>
+            {{ applications | length }} Applicant{{ 's' if applications | length != 1 else '' }}
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Student Name</th>
+                        <th>Email</th>
+                        <th>Course</th>
+                        <th>CGPA</th>
+                        <th>Contact</th>
+                        <th>Resume</th>
+                        <th>Applied On</th>
+                        <th>Current Status</th>
+                        <th>Update Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in applications %}
+                    {% set sp = app.student %}
+                    {% set user = sp.user %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td><strong>{{ user.name }}</strong></td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ sp.course or '—' }}</td>
+                        <td>{{ sp.cgpa or '—' }}</td>
+                        <td>{{ sp.contact_number or '—' }}</td>
+                        <td>
+                            {% if sp.resume_filename %}
+                                <span class="badge bg-success">
+                                    <i class="bi bi-file-earmark-pdf me-1"></i>Available
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary">None</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ app.application_date.strftime('%d %b %Y') }}</td>
+
+                        <!-- Current Status Badge -->
+                        <td>
+                            {% if app.status == 'Selected' %}
+                                <span class="badge bg-success">{{ app.status }}</span>
+                            {% elif app.status == 'Shortlisted' %}
+                                <span class="badge bg-info text-dark">{{ app.status }}</span>
+                            {% elif app.status == 'Rejected' %}
+                                <span class="badge bg-danger">{{ app.status }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ app.status }}</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Status Update Form -->
+                        <td>
+                            <form method="POST"
+                                  action="{{ url_for('update_application_status', app_id=app.id) }}"
+                                  class="d-flex gap-1 align-items-center">
+                                <select name="status" class="form-select form-select-sm" style="min-width:120px;">
+                                    <option value="Applied"     {{ 'selected' if app.status == 'Applied'     }}>Applied</option>
+                                    <option value="Shortlisted" {{ 'selected' if app.status == 'Shortlisted' }}>Shortlisted</option>
+                                    <option value="Selected"    {{ 'selected' if app.status == 'Selected'    }}>Selected</option>
+                                    <option value="Rejected"    {{ 'selected' if app.status == 'Rejected'    }}>Rejected</option>
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-primary"
+                                        title="Update Status">
+                                    <i class="bi bi-check-lg"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% else %}
+    <div class="alert alert-info text-center">
+        <i class="bi bi-inbox display-4 d-block mb-2"></i>
+        No applications received for this drive yet.
+    </div>
+{% endif %}
+
+
+{% else %}
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     STUDENT VIEW: See own application history
+══════════════════════════════════════════════════════════════════════════════ -->
+
+<!-- Page Heading -->
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h2 class="mb-0">
+            <i class="bi bi-file-earmark-text me-2 text-primary"></i>My Applications
+        </h2>
+        <small class="text-muted">Track the status of all your job applications</small>
+    </div>
+    <a href="{{ url_for('student_dashboard') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+    </a>
+</div>
+
+<!-- Summary Badges -->
+{% if applications %}
+<div class="d-flex flex-wrap gap-2 mb-3">
+    <span class="badge bg-secondary px-3 py-2">
+        Total: {{ applications | length }}
+    </span>
+    <span class="badge bg-info text-dark px-3 py-2">
+        Shortlisted: {{ applications | selectattr('status', 'equalto', 'Shortlisted') | list | length }}
+    </span>
+    <span class="badge bg-success px-3 py-2">
+        Selected: {{ applications | selectattr('status', 'equalto', 'Selected') | list | length }}
+    </span>
+    <span class="badge bg-danger px-3 py-2">
+        Rejected: {{ applications | selectattr('status', 'equalto', 'Rejected') | list | length }}
+    </span>
+</div>
+{% endif %}
+
+<!-- Applications Table -->
+{% if applications %}
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Company</th>
+                        <th>Job Title</th>
+                        <th>Eligibility</th>
+                        <th>Drive Deadline</th>
+                        <th>Applied On</th>
+                        <th>Drive Status</th>
+                        <th>Application Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in applications %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td><strong>{{ app.drive.company.company_name }}</strong></td>
+                        <td>{{ app.drive.job_title }}</td>
+                        <td>{{ app.drive.eligibility or '—' }}</td>
+                        <td>
+                            {{ app.drive.deadline.strftime('%d %b %Y') if app.drive.deadline else '—' }}
+                        </td>
+                        <td>{{ app.application_date.strftime('%d %b %Y') }}</td>
+
+                        <!-- Drive Status -->
+                        <td>
+                            {% if app.drive.status == 'Approved' %}
+                                <span class="badge bg-success">Open</span>
+                            {% elif app.drive.status == 'Closed' %}
+                                <span class="badge bg-secondary">Closed</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">{{ app.drive.status }}</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Application Status Badge with colour coding -->
+                        <td>
+                            {% if app.status == 'Selected' %}
+                                <span class="badge bg-success fs-6 px-3">
+                                    <i class="bi bi-trophy me-1"></i>{{ app.status }}
+                                </span>
+                            {% elif app.status == 'Shortlisted' %}
+                                <span class="badge bg-info text-dark fs-6 px-3">
+                                    <i class="bi bi-star me-1"></i>{{ app.status }}
+                                </span>
+                            {% elif app.status == 'Rejected' %}
+                                <span class="badge bg-danger fs-6 px-3">
+                                    <i class="bi bi-x-circle me-1"></i>{{ app.status }}
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary fs-6 px-3">
+                                    <i class="bi bi-hourglass me-1"></i>{{ app.status }}
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% else %}
+    <div class="text-center py-5 text-muted">
+        <i class="bi bi-inbox display-4 d-block mb-3"></i>
+        <p class="mb-0">You haven't applied to any drives yet.</p>
+        <a href="{{ url_for('student_dashboard') }}" class="btn btn-primary mt-3">
+            <i class="bi bi-search me-2"></i>Browse Drives
+        </a>
+    </div>
+{% endif %}
+
+{% endif %}{# end view check #}
+
+{% endblock %}

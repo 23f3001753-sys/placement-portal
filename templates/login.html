@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Login — Placement Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-12 col-sm-9 col-md-6 col-lg-5">
+
+        <!-- Card -->
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-primary text-white text-center py-3">
+                <h4 class="mb-0">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                </h4>
+                <small class="opacity-75">Placement Portal</small>
+            </div>
+
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('login') }}" novalidate>
+
+                    <!-- Email -->
+                    <div class="mb-3">
+                        <label for="email" class="form-label fw-semibold">
+                            <i class="bi bi-envelope me-1"></i>Email Address
+                        </label>
+                        <input
+                            type="email"
+                            class="form-control"
+                            id="email"
+                            name="email"
+                            placeholder="you@example.com"
+                            required
+                            autofocus
+                        />
+                    </div>
+
+                    <!-- Password -->
+                    <div class="mb-4">
+                        <label for="password" class="form-label fw-semibold">
+                            <i class="bi bi-lock me-1"></i>Password
+                        </label>
+                        <input
+                            type="password"
+                            class="form-control"
+                            id="password"
+                            name="password"
+                            placeholder="Enter your password"
+                            required
+                        />
+                    </div>
+
+                    <!-- Submit -->
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Footer links -->
+            <div class="card-footer text-center bg-white py-3 border-top">
+                <small class="text-muted">New here?</small>
+                <div class="mt-1 d-flex justify-content-center gap-3">
+                    <a href="{{ url_for('register_student') }}" class="btn btn-sm btn-outline-success">
+                        <i class="bi bi-person-plus me-1"></i>Student Register
+                    </a>
+                    <a href="{{ url_for('register_company') }}" class="btn btn-sm btn-outline-info">
+                        <i class="bi bi-building-add me-1"></i>Company Register
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Default credentials hint -->
+        <div class="alert alert-info mt-3 small text-center shadow-sm">
+            <i class="bi bi-shield-lock me-1"></i>
+            <strong>Admin Login:</strong> admin@portal.com &nbsp;|&nbsp; admin123
+        </div>
+
+    </div>
+</div>
+{% endblock %}

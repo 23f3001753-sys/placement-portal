@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if action == 'edit' %}Edit Drive{% else %}Post New Drive{% endif %}
+    — Placement Portal
+{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center mt-3">
+    <div class="col-12 col-md-8 col-lg-7">
+
+        <div class="card border-0 shadow-sm">
+            <!-- Card Header changes based on create vs edit -->
+            <div class="card-header py-3
+                {% if action == 'edit' %}bg-warning text-dark{% else %}bg-primary text-white{% endif %}">
+                <h4 class="mb-0">
+                    {% if action == 'edit' %}
+                        <i class="bi bi-pencil-square me-2"></i>Edit Placement Drive
+                    {% else %}
+                        <i class="bi bi-plus-circle me-2"></i>Post New Placement Drive
+                    {% endif %}
+                </h4>
+                <small class="opacity-75">
+                    {% if action == 'edit' %}
+                        Changes will require re-approval from admin.
+                    {% else %}
+                        New drives require admin approval before students can see them.
+                    {% endif %}
+                </small>
+            </div>
+
+            <div class="card-body p-4">
+                <form method="POST"
+                      action="{% if action == 'edit' %}{{ url_for('edit_drive', drive_id=drive.id) }}{% else %}{{ url_for('create_drive') }}{% endif %}"
+                      novalidate>
+
+                    <!-- Job Title -->
+                    <div class="mb-3">
+                        <label for="job_title" class="form-label fw-semibold">
+                            <i class="bi bi-briefcase me-1"></i>Job Title <span class="text-danger">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="job_title"
+                            name="job_title"
+                            value="{{ drive.job_title if drive else '' }}"
+                            placeholder="e.g. Software Engineer Trainee"
+                            required
+                            autofocus
+                        />
+                    </div>
+
+                    <!-- Job Description -->
+                    <div class="mb-3">
+                        <label for="job_description" class="form-label fw-semibold">
+                            <i class="bi bi-text-paragraph me-1"></i>Job Description
+                        </label>
+                        <textarea
+                            class="form-control"
+                            id="job_description"
+                            name="job_description"
+                            rows="5"
+                            placeholder="Describe the role, responsibilities, and what you're looking for…"
+                        >{{ drive.job_description if drive else '' }}</textarea>
+                    </div>
+
+                    <!-- Eligibility -->
+                    <div class="mb-3">
+                        <label for="eligibility" class="form-label fw-semibold">
+                            <i class="bi bi-check2-square me-1"></i>Eligibility Criteria
+                        </label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="eligibility"
+                            name="eligibility"
+                            value="{{ drive.eligibility if drive else '' }}"
+                            placeholder="e.g. B.Tech CSE/IT, CGPA ≥ 7.0, No backlogs"
+                        />
+                        <div class="form-text text-muted">
+                            Specify minimum CGPA, allowed branches, and any other requirements.
+                        </div>
+                    </div>
+
+                    <!-- Deadline -->
+                    <div class="mb-4">
+                        <label for="deadline" class="form-label fw-semibold">
+                            <i class="bi bi-calendar-event me-1"></i>Application Deadline <span class="text-danger">*</span>
+                        </label>
+                        <input
+                            type="date"
+                            class="form-control"
+                            id="deadline"
+                            name="deadline"
+                            value="{{ drive.deadline.strftime('%Y-%m-%d') if drive and drive.deadline else '' }}"
+                            required
+                        />
+                    </div>
+
+                    <!-- Company context reminder -->
+                    <div class="alert alert-light border mb-4">
+                        <small>
+                            <i class="bi bi-building me-1 text-info"></i>
+                            Posting as: <strong>{{ company.company_name }}</strong>
+                        </small>
+                    </div>
+
+                    <!-- Form Buttons -->
+                    <div class="d-flex gap-2">
+                        <button type="submit"
+                                class="btn {% if action == 'edit' %}btn-warning{% else %}btn-primary{% endif %}">
+                            {% if action == 'edit' %}
+                                <i class="bi bi-save me-2"></i>Update Drive
+                            {% else %}
+                                <i class="bi bi-send me-2"></i>Submit for Approval
+                            {% endif %}
+                        </button>
+                        <a href="{{ url_for('company_dashboard') }}"
+                           class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Cancel
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

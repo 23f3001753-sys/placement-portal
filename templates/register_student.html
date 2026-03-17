@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Student Registration — Placement Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-12 col-md-7 col-lg-6">
+
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-success text-white py-3">
+                <h4 class="mb-0">
+                    <i class="bi bi-person-plus-fill me-2"></i>Student Registration
+                </h4>
+                <small class="opacity-75">Create your student account</small>
+            </div>
+
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('register_student') }}" novalidate>
+
+                    <div class="row g-3">
+
+                        <!-- Full Name -->
+                        <div class="col-12">
+                            <label for="name" class="form-label fw-semibold">
+                                <i class="bi bi-person me-1"></i>Full Name
+                            </label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="name"
+                                name="name"
+                                placeholder="Enter your full name"
+                                required
+                                autofocus
+                            />
+                        </div>
+
+                        <!-- Email -->
+                        <div class="col-12">
+                            <label for="email" class="form-label fw-semibold">
+                                <i class="bi bi-envelope me-1"></i>Email Address
+                            </label>
+                            <input
+                                type="email"
+                                class="form-control"
+                                id="email"
+                                name="email"
+                                placeholder="student@university.edu"
+                                required
+                            />
+                        </div>
+
+                        <!-- Password -->
+                        <div class="col-12">
+                            <label for="password" class="form-label fw-semibold">
+                                <i class="bi bi-lock me-1"></i>Password
+                            </label>
+                            <input
+                                type="password"
+                                class="form-control"
+                                id="password"
+                                name="password"
+                                placeholder="Minimum 6 characters"
+                                required
+                                minlength="6"
+                            />
+                        </div>
+
+                        <!-- Course -->
+                        <div class="col-md-6">
+                            <label for="course" class="form-label fw-semibold">
+                                <i class="bi bi-book me-1"></i>Course / Branch
+                            </label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="course"
+                                name="course"
+                                placeholder="e.g. B.Tech CSE"
+                            />
+                        </div>
+
+                        <!-- CGPA -->
+                        <div class="col-md-6">
+                            <label for="cgpa" class="form-label fw-semibold">
+                                <i class="bi bi-bar-chart me-1"></i>CGPA <small class="text-muted">(0 – 10)</small>
+                            </label>
+                            <input
+                                type="number"
+                                class="form-control"
+                                id="cgpa"
+                                name="cgpa"
+                                placeholder="e.g. 8.5"
+                                step="0.01"
+                                min="0"
+                                max="10"
+                            />
+                        </div>
+
+                        <!-- Contact Number -->
+                        <div class="col-12">
+                            <label for="contact_number" class="form-label fw-semibold">
+                                <i class="bi bi-telephone me-1"></i>Contact Number
+                            </label>
+                            <input
+                                type="tel"
+                                class="form-control"
+                                id="contact_number"
+                                name="contact_number"
+                                placeholder="e.g. 9876543210"
+                                maxlength="15"
+                            />
+                        </div>
+
+                    </div><!-- /row -->
+
+                    <!-- Submit -->
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="bi bi-check-circle me-2"></i>Create Account
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+
+            <div class="card-footer bg-white text-center py-3">
+                Already have an account?
+                <a href="{{ url_for('login') }}" class="text-decoration-none fw-semibold">Login here</a>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
